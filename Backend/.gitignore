@@ -1,0 +1,53 @@
+# =========================
+# Node.js
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.local
+.env.production
+.env.development
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# OS / Editor junk
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# =========================
+# Build / Cache
+# =========================
+dist/
+build/
+.cache/
+
+# =========================
+# Coverage
+# =========================
+coverage/
+
+# =========================
+# Optional: Ignore frontend deps if inside backend repo
+# =========================
+dark_store_frontend/node_modules/
+user_frontend/node_modules/
+
+# =========================
+# Optional: Ignore uploads / temp files
+# =========================
+uploads/
+tmp/
