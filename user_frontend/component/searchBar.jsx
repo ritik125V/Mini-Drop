@@ -178,7 +178,7 @@ export default function SearchBar({ onSelect, fullPage = false } = {} , warehous
                           aria-selected={selectedIndex === idx}
                           onClick={() => handleSelect(product)}
                           onMouseEnter={() => setSelectedIndex(idx)}
-                          className={`cursor-pointer ${selectedIndex === idx ? 'ring-2 ring-indigo-200' : ''}`}
+                          className={`cursor-pointer " ${selectedIndex === idx ? 'ring-2 ring-indigo-200' : ''}`}
                         >
                           <ProductCard product={p} />
                         </div>

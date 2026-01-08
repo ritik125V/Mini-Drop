@@ -30,7 +30,7 @@ export default function HomePage() {
 
   const fetchProducts = async () => {
       try {
-        const res = await axios.get(process.env.NEXT_PUBLIC_API_ONE_BASE+"/admin/products" || "http://localhost:5000/api/v1/admin/products");
+        const res = await axios.get(process.env.NEXT_PUBLIC_API_ONE_BASE+"/customer/featured-products" || "http://localhost:5000/api/v1/customer/featured-products");
         setProducts(res.data.products);
       } catch (err) {
         console.error("Failed to fetch products, using fallback sample:", err);
@@ -154,7 +154,7 @@ return (
       {productsLoading ? (
         <ProductSkeleton />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-2">
           {products.map((p) => (
             <ProductCard
               key={p._id ?? p.productId}

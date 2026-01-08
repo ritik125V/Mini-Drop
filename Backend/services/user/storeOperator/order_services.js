@@ -20,7 +20,7 @@ async function getWarehouseOrders(req , res) {
         }).sort({createdAt: -1})
         return res.status(200).json({
             success : true,
-            orders: orders
+            orders: orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         })
     } catch (error) {
         return res.status(500).json({

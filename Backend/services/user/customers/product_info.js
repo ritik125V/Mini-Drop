@@ -1,5 +1,8 @@
 import Product from "../../../models/product.js";
 import Inventory from "../../../models/inventory.js";
+
+
+
 async function getProductInfo(req, res) {
     
   try {

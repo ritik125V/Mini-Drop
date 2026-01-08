@@ -60,7 +60,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.97 }}
+      whileTap={{ scale: 0.9999 }}
       className="bg-white rounded-2xl border border-neutral-200 p-3 flex flex-col"
     >
       {/* Image */}

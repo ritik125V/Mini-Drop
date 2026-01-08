@@ -56,9 +56,24 @@ const productSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
-    }
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true
+    },
+    featuredCategory:[
+      {
+        type: String,
+        required: true,
+        default: "daily",
+        index: true
+      }
+    ]
   },
   { timestamps: true }
 );
+
+
 
 export default mongoose.model("Product", productSchema);

@@ -3,6 +3,8 @@ import cors from "cors";
 import router from "./routes.js";
 import connectMongo from "./mongo_DB.js";
 import dotenv from 'dotenv';
+import { warehouseLocationCache } from "./redis_server/initializeCache.js";
+
 dotenv.config();
 
 
@@ -36,5 +38,6 @@ app.use("/api/v1", router);
 
 // DB connection
 connectMongo();
+warehouseLocationCache()
 
 export default app;
