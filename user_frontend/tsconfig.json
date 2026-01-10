@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/main/page.jsx", "component/ws.jsx", "app/current-order/[id]/page.jsx", "app/shop/current-order/[id]/page.tsx"  ],
+, "app/main/page.jsx", "component/ws.jsx", "app/current-order/[id]/page.jsx", "app/shop/current-order/[id]/page.tsx", "app/auth/login/page.tsx"  ],
   "exclude": ["node_modules"]
 }

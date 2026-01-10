@@ -8,7 +8,8 @@ import { motion } from 'framer-motion'
 import Header from "../../../component/layout/Header";
 import HomeSearch from "../../../component/home/HomeSearch";
 import ProductSkeleton from "../../../component/home/ProductSkeleton";
-
+import BannerImage from "../../../component/ui/BannerImage"
+import CartButton from "../../../component/ui/CartButton"
 
 // import { getSocket } from "../../lib/socket/socket_client.js"; // uncomment if socket usage is needed
 
@@ -143,11 +144,13 @@ return (
       eta={eta}
       distance={distance}
     />
-
     <HomeSearch />
-
-    <main className="px-4 pb-24 max-w-7xl mx-auto">
-      <h2 className="text-lg font-semibold mb-4">
+    <BannerImage/>
+    <CartButton/>
+    <main className=" pb-24 w-full ">
+      {/* popular section */}
+      <div className="bg-gray-50  w-full sm:px-8 px-2 py-2">
+        <h2 className="text-xl font-bold mb-4">
         Popular near you
       </h2>
 
@@ -163,6 +166,7 @@ return (
           ))}
         </div>
       )}
+      </div>
     </main>
   </div>
 );
