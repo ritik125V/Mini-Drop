@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { updateCartQuantity, removeFromCart } from "@/functions/cart_functions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
+import Header from "@/component/layout/Header";
 
 const CART_KEY = "user-cart";
 
@@ -51,6 +51,9 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#F7F7F2] pb-28">
+      <Header 
+               address_viewMode = {false}
+            />
       {/* Header */}
       <div className="max-w-md mx-auto px-4 pt-4">
         <h1 className="text-lg font-semibold text-black">Your Cart</h1>

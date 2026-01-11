@@ -8,17 +8,18 @@ import logo from "../../resources/logos/MD-logo_transparent_bg.png";
 
 
 interface HeaderProps {
+  address_viewMode?:boolean,
   address?: any;
   eta?: number | null;
   distance?: string | null;
 }
 
-export default function Header({ address, eta, distance }: HeaderProps) {
+export default function Header({ address, eta, distance ,address_viewMode  }: HeaderProps) {
     const router = useRouter();
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-neutral-200">
       <div className="sm:px-4 px-1 py-3 flex items-center justify-between max-w-7xl mx-auto ">
-        {/* Location */}
+
        
         <div className="min-w-0  flex items-center">
            <div className="flex justify-center items-center  ">
@@ -28,7 +29,8 @@ export default function Header({ address, eta, distance }: HeaderProps) {
           alt="MD logo"
         />
       </div>
-           <div>
+           {
+            address_viewMode &&<div>
             <p className="text-[11px] text-neutral-500">Deliver to</p>
              {
               address? 
@@ -49,6 +51,7 @@ export default function Header({ address, eta, distance }: HeaderProps) {
             </p>
           )}
            </div> 
+           }
         </div>
 
         {/* Account */}

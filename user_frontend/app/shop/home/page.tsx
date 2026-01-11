@@ -143,6 +143,7 @@ return (
       address={address}
       eta={eta}
       distance={distance}
+      address_viewMode = {true}
     />
     <HomeSearch />
     <BannerImage/>

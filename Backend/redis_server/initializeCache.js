@@ -1,6 +1,7 @@
 import warehouse from "../models/warehouse.js";
 import redisServer from "../redis_server/redis_server.js";
 import connectMongo from '../mongo_DB.js'
+import Product from "../models/product.js";
 
 
 async function warehouseLocationCache() {
@@ -46,5 +47,52 @@ async function warehouseLocationCache() {
   }
 }
 
+async function productCache() {
+  try {
+    console.log("accessing redis server");
 
-export {warehouseLocationCache}
+    // 1️⃣ Check if cache already exists
+    const isProductCachePresent = await redisServer.exists("products:all");
+
+    if (isProductCachePresent === 1) {
+      console.log("✅ Product cache already present");
+      return;
+    }
+
+    console.log("⏳ Product cache not found, building cache...");
+
+    // 2️⃣ Fetch products from DB
+    const products = await Product.find();
+
+    // 3️⃣ Cache each product
+    for (const product of products) {
+      const productKey = `product:${product._id}`;
+
+      await redisServer.set(
+        productKey,
+        JSON.stringify(product)
+      );
+
+      await redisServer.sadd(
+        "products:all",
+        product._id.toString()
+      );
+
+      await redisServer.sadd(
+        `products:category:${product.category.replace(/\s/g, "")}`,
+        product._id.toString()
+      );
+    }
+
+    console.log(`🚀 Cached ${products.length} products in Redis`);
+
+  } catch (error) {
+    console.error("Redis product cache error:", error);
+  }
+}
+
+
+
+
+
+export {warehouseLocationCache ,productCache}

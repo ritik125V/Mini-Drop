@@ -9,6 +9,7 @@ import {
 } from '../../../../functions/cart_functions.js'
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import Header from "@/component/layout/Header";
 const CART_KEY = "user-cart";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
@@ -102,6 +103,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-[#F7F7F2] pb-24">
+      <Header 
+         address_viewMode = {false}
+      />
       <AnimatedDiv>
         <div className="max-w-md mx-auto px-4 pt-4">
           {/* Image */}

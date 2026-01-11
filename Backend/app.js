@@ -3,7 +3,8 @@ import cors from "cors";
 import router from "./routes.js";
 import connectMongo from "./mongo_DB.js";
 import dotenv from 'dotenv';
-import { warehouseLocationCache } from "./redis_server/initializeCache.js";
+import { warehouseLocationCache , productCache } from "./redis_server/initializeCache.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -13,12 +14,11 @@ const allowedOrigins = [
   process.env.ORIGIN_URI_TWO
 ];
 
-
 const app = express();
 
 // Middleware
 app.use(express.json());
-
+app.use(cookieParser());
 
 app.use(
   cors({
@@ -39,5 +39,6 @@ app.use("/api/v1", router);
 // DB connection
 connectMongo();
 warehouseLocationCache()
+productCache()
 
 export default app;

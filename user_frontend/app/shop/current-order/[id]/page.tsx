@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import OrderStatus from "@/component/ws";
+import Header from "@/component/layout/Header";
 
 
 /* ---------------- Fix Leaflet Icons ---------------- */
@@ -55,6 +56,7 @@ export default function CurrentOrderPage() {
 
   return (
     <div className="min-h-screen bg-white text-black">
+      
       {/* Header */}
       <div className="px-4 py-4 border-b border-neutral-200">
         <h1 className="text-lg font-semibold">

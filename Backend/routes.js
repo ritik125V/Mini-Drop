@@ -7,9 +7,11 @@ import {operatorLogin , operatorSignUp} from "./services/user/storeOperator/oper
 import searchProduct from "./services/universal/search_product.js"
 import { getProductInfo,userSearchQuery } from "./services/user/customers/product_info.js";
 import {placeOrder ,getOrders,trackOrder} from './services/user/customers/order_services.js'
-import {createCustomerProfile} from "./services/user/customers/profile_services.js"
+import {createCustomerProfile , loginCustomer } from "./services/user/customers/profile_services.js"
 import {getWarehouseOrders ,updateOrderStatus} from './services/user/storeOperator/order_services.js'
 import {FeaturedProducts} from './services/user/customers/add_on_services.js'
+import tokenMiddleware from "./middleware/user_auth_middleware.js";
+
 
 
 const router = Router();
@@ -23,6 +25,7 @@ router.get("/customer/search-query", userSearchQuery)
 router.get("/customer/get-orders" , getOrders)
 router.get("/customer/track-order" , trackOrder)
 router.get("/customer/featured-products" , FeaturedProducts)
+router.post("/customer/login" , loginCustomer)
 
 
 // store operator routes
@@ -37,7 +40,7 @@ router.post("/warehouse/update-order-status" , updateOrderStatus)
 
 // admin routes
 router.get("/admin/warehouses-info", getWarehouseInfo);
-router.get("/admin/products", getAllProducts);
+router.get("/admin/products",tokenMiddleware, getAllProducts);
 router.put("/admin/update-product-status" , updateFeaturedProduct_Status)
 router.put("/admin/update-featured-category" , UpdateFeaturedCategory)
 
