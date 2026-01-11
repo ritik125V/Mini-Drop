@@ -11,6 +11,7 @@ import ProductSkeleton from "../../../component/home/ProductSkeleton";
 import BannerImage from "../../../component/ui/BannerImage"
 import CartButton from "../../../component/ui/CartButton"
 
+
 // import { getSocket } from "../../lib/socket/socket_client.js"; // uncomment if socket usage is needed
 
 export default function HomePage() {
@@ -146,7 +147,7 @@ return (
       address_viewMode = {true}
     />
     <HomeSearch />
-    <BannerImage/>
+    <BannerImage />
     <CartButton/>
     <main className=" pb-24 w-full ">
       {/* popular section */}
