@@ -36,9 +36,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           "http://localhost:5000/api/v1/customers/product-info",
           {
             params: { productId: id },
+             withCredentials: true,
           }
         );
-
+        
+        
         if (!mounted) return;
 
         setProduct(data?.product || null);
@@ -49,8 +51,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           (i: any) => i.productId === data?.product?.productId
         );
         if (item) setQty(item.quantity);
-      } catch (err) {
-        console.error(err);
+      } catch (err:any) {
+        console.error("error  :",err);
+        if(err.status===401){
+          router.push("/auth/login");
+        }
         if (mounted) setError("Failed to load product");
       } finally {
         if (mounted) setLoading(false);

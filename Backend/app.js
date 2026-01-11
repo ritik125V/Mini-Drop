@@ -20,21 +20,31 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+
+
 app.use(
   cors({
-    origin: function (origin, callback) {
+    origin:function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
+          console.log("Incoming Origin:", origin);
+           console.log("Allowed:", allowedOrigins);
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
       }
-    }
+    },
+    credentials: true
   })
 );
 
 
 // Routes
 app.use("/api/v1", router);
+
+app.get("/test-cookie", (req, res) => {
+  res.cookie("test", "123", { path: "/" });
+  res.send("ok");
+});
 
 // DB connection
 connectMongo();

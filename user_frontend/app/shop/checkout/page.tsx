@@ -7,7 +7,6 @@ const CART_KEY = "user-cart";
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState<any[]>([]);
-  const [userId, setUserId] = useState("");
   const [warehouseId, setWarehouseId] = useState("");
   const [addressId, setAddressId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +32,7 @@ export default function CheckoutPage() {
   );
 
   const placeOrder = async () => {
-    if (!userId || !warehouseId || !addressId) {
+    if ( !warehouseId || !addressId) {
       setError("Please fill all required fields");
       return;
     }
@@ -45,10 +44,12 @@ export default function CheckoutPage() {
       await axios.post(
         process.env.NEXT_PUBLIC_API_ONE_BASE+"/customer/place-order" ||"http://localhost:5000/api/v1/customer/place-order",
         {
-          userId,
           warehouseId,
           addressId,
           products: productsPayload,
+        },
+        {
+          withCredentials: true,
         }
       );
 
@@ -82,12 +83,12 @@ export default function CheckoutPage() {
 
         {/* User Inputs */}
         <div className="mt-4 space-y-3">
-          <input
+          {/* <input
             value={userId}
             onChange={e => setUserId(e.target.value)}
             placeholder="User ID"
             className="w-full px-4 py-2 rounded-lg border text-sm"
-          />
+          /> */}
 
           <input
             value={warehouseId}

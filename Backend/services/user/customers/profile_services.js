@@ -68,6 +68,8 @@ async function createCustomerProfile(req, res) {
 
 async function loginCustomer(req, res) {
   try {
+    console.log("req atloginCustomer ");
+    
     const { phone, password } = req.body;
 
     if (!phone || !password) {
@@ -102,12 +104,14 @@ async function loginCustomer(req, res) {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+    console.log("SETTING COOKIE NOW");
 
     return res
       .cookie("mdtoken", token, {
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        sameSite: "lax"
+         httpOnly: true,
+         maxAge: 7 * 24 * 60 * 60 * 1000,
+        sameSite: "none", // REQUIRED
+         secure: true,
       })
       .status(200)
       .json({
@@ -128,6 +132,39 @@ async function loginCustomer(req, res) {
   }
 }
 
+async function getUserProfile(req, res){
+  console.log("req at getUserProfile");
+  try{
+    const userId = req.user.userId;
+    const user = await UserProfile.findById(userId , {
+      password : 0,
+      createdAt : 0,
+      updatedAt : 0,
+      __v : 0,
+      _id : 0
+    });
+    if(!user){
+      console.log("user not founf with id : " , userId);
+      
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      user
+    });
+  }
+  catch{
+    console.log("error at getUserProfile");
+    
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+}
 
 
-export  {createCustomerProfile , loginCustomer};
+export  {createCustomerProfile , loginCustomer , getUserProfile};

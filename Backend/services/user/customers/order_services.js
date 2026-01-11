@@ -11,7 +11,8 @@ import { getIO } from "../../../ws/index.js";
 
 async function placeOrder(req, res) {
   try {
-    const { userId, warehouseId, products, addressId } = req.body;
+    const userId = req.user.userId;
+    const { warehouseId, products, addressId } = req.body;
     if (
       !userId ||
       !warehouseId ||
@@ -83,14 +84,9 @@ async function placeOrder(req, res) {
 
 async function getOrders(req, res) {
   try {
-    const { phone } = req.query;
-    if (!phone) {
-      return res.status(400).json({
-        success: false,
-        message: "User ID is required"
-      });
-    }
-    const orders = await Order.find({ "customer.phone": phone });
+    const userId = req.user.userId;
+    
+    const orders = await Order.find({ "customer.userId": userId }).populate();
     return res.status(200).json({
       success: true,
       orders

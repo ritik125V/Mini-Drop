@@ -24,6 +24,7 @@ export default function CurrentOrderPage() {
     axios
       .get(process.env.NEXT_PUBLIC_API_ONE_BASE+"/customer/track-order" || "http://localhost:5000/api/v1/customer/track-order", {
         params: { orderId },
+       
       })
       .then((res) => {
         setOrder(res.data.order);
