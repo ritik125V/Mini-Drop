@@ -5,31 +5,38 @@ dotenv.config();
 
 async function tokenMiddleware(req, res, next) {
   try {
+    console.log("Incoming cookies:", req.cookies);
+
     const token = req.cookies?.mdtoken;
-    console.log("token : " , res.cookies);
-    
+
     if (!token) {
-      console.log("no token present" ,token);
+      console.log("No token present");
       return res.status(401).json({
         success: false,
-        message: "Unauthorized - no token provided"
+        message: "Unauthorized - no token provided",
+      });
+    }console.log("Token:", token);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      console.log("Token verification failed");
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - invalid token",
       });
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Token decoded:", decoded);
     req.user = decoded;
-    // req.user.userId stores userId
-    
-    next();
 
+    next();
   } catch (error) {
-    console.error("Token verification error:", error);  
+    console.log("Token verification error:", error.message);
     return res.status(401).json({
       success: false,
-      message: "Unauthorized - invalid token"
+      message: "Unauthorized - invalid token",
     });
   }
 }
+
 
 
 export default tokenMiddleware;

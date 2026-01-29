@@ -63,6 +63,10 @@ async function userSearchQuery(req, res) {
       .lean();
     console.log("products found:", inventory_search.length);
     const productIds = inventory_search.map(item => item.productId);
+
+    
+    // get product info from cache 
+    
     const products = await Product.find({productId: {$in: productIds}}).lean();
     return res.status(200).json({
       success: true,

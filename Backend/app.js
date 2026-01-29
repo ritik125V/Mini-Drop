@@ -5,6 +5,7 @@ import connectMongo from "./mongo_DB.js";
 import dotenv from 'dotenv';
 import { warehouseLocationCache , productCache } from "./redis_server/initializeCache.js";
 import cookieParser from "cookie-parser";
+import redisServer from "./redis_server/redis_server.js";
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.get("/test-cookie", (req, res) => {
 });
 
 // DB connection
+
 connectMongo();
 warehouseLocationCache()
 productCache()

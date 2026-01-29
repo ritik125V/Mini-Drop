@@ -2,6 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import AddressAccordion from "@/component/ui/AddressAccordion";
+import { button } from "framer-motion/client";
+
+interface Address {
+  _id: string;
+  [key: string]: any;
+}
 
 const CART_KEY = "user-cart";
 
@@ -12,7 +19,32 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [address, setAddress] = useState<any>(null);
 
+   useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await axios.get(
+          process.env.NEXT_PUBLIC_API_ONE_BASE + "/customer/profile",
+          {
+            withCredentials: true,
+          }
+        );
+        setUser(res.data.user);
+        console.log("user : ", res.data.user);
+        setAddress(res.data.user.address || null);
+        
+      } catch (err) {
+        // Not logged in → redirect
+        // router.replace("/auth/login");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProfile();
+  }, []);
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
     setCart(stored);
@@ -33,6 +65,7 @@ export default function CheckoutPage() {
 
   const placeOrder = async () => {
     if ( !warehouseId || !addressId) {
+      console.log("Validation failed" , { warehouseId, addressId });
       setError("Please fill all required fields");
       return;
     }
@@ -97,12 +130,21 @@ export default function CheckoutPage() {
             className="w-full px-4 py-2 rounded-lg border text-sm"
           />
 
-          <input
-            value={addressId}
-            onChange={e => setAddressId(e.target.value)}
-            placeholder="Address ID"
-            className="w-full px-4 py-2 rounded-lg border text-sm"
-          />
+     {address && address.length > 0 ? (
+  address.map((addr: any) => (
+    <AddressAccordion
+      key={addr._id}
+      address={addr}
+      onSelectAddress={(id: string, nearestWarehouseId?: string) => {
+        setAddressId(id);
+        setWarehouseId(nearestWarehouseId || "");
+      }}
+    />
+  ))
+) : (
+  <p className="text-sm text-black/60">No saved addresses</p>
+)}
+
         </div>
 
         {/* Order Summary */}

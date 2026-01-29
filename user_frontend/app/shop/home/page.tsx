@@ -25,6 +25,7 @@ export default function HomePage() {
   const [socketConnected, setSocketConnected] = useState(false);
   const [eta, setEta] = useState<number | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
+  const [loginStatus, setLoginStatus] = useState<boolean>(false);
 
   // Products (fetched from API on mount)
   const [products, setProducts] = useState<any[]>([]);
@@ -46,6 +47,31 @@ export default function HomePage() {
   }, []);
 
 
+  async function fetchProfile() {
+      try {
+        const res = await axios.get(
+          process.env.NEXT_PUBLIC_API_ONE_BASE + "/customer/profile",
+          {
+            withCredentials: true,
+          }
+        );
+        if(!res.data.success)
+          setLoginStatus(false);
+        else
+          setLoginStatus(true);
+
+        console.log("user : ", res.data.user);
+      } catch (err) {
+        // Not logged in → redirect
+        // router.replace("/auth/login");
+      } finally {
+        
+      }
+    }
+
+
+
+  //  check if logined in is false
   /* ---------------- Get User Location ---------------- */
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -94,13 +120,14 @@ export default function HomePage() {
          process.env.NEXT_PUBLIC_API_ONE_BASE+"/customers/nearest-store" || "http://localhost:5000/api/v1/customers/nearest-store",
           { user_coordinates: location }
         );
-        console.log("data :",res);
+        console.log("nearest warehouse data  :",res);
         if(res.data.success){
           setReqStatus(res.data.success);
         setNearestWarehouse(res.data.store);
         }
         else{
           setReqStatus(res.data.success);
+          setNearestWarehouse(null);
         }
       } catch (err) {
         console.error("error occured :",err);
@@ -114,6 +141,7 @@ export default function HomePage() {
 
     const fetchRoute = async () => {
       try {
+        if(nearestWarehouse == null) return;
         const url = `https://router.project-osrm.org/route/v1/foot/${location.lng},${location.lat};${nearestWarehouse.location.coordinates[0]},${nearestWarehouse.location.coordinates[1]}?overview=full&geometries=polyline`;
 
         const res = await fetch(url);
@@ -141,6 +169,7 @@ export default function HomePage() {
 return (
   <div className="min-h-screen bg-white text-black">
     <Header
+      iswarehouse_present = {nearestWarehouse==null?false:true}
       address={address}
       eta={eta}
       distance={distance}

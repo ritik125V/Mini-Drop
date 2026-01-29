@@ -7,7 +7,6 @@ async function nearestStore(req, res) {
 
   try {
     const { user_coordinates } = req.body;
-    console.log("user coordinates:", user_coordinates);
 
     if (
       !user_coordinates ||
@@ -15,69 +14,71 @@ async function nearestStore(req, res) {
       typeof user_coordinates.lng !== "number"
     ) {
       return res.status(400).json({
+        success: false,
         message: "Valid user coordinates are required",
       });
     }
 
     const { lat, lng } = user_coordinates;
-    // redis data
-    const redisResult = await redisServer.georadius(
-      "warehouse",
-      lng,
-      lat,
-      5,
-      "km",
-      "WITHDIST",
-      "ASC",
-      "COUNT",
-      2
-    );
 
-    console.log("Redis nearest result:", redisResult);
+    let redisResult = null;
+    let redisFailed = false;
 
-    if (!redisResult || redisResult.length === 0) {
-      console.log("No warehouse found in Redis cache");
-    } else {
-      const nearestWarehouseId = redisResult[0][0];
-      const distanceKm = redisResult[0][1];
-
-      console.log(
-        `Nearest warehouse from Redis: ${nearestWarehouseId} (${distanceKm} km)`
+    // 1️⃣ Try Redis (non-blocking)
+    try {
+      redisResult = await redisServer.georadius(
+        "warehouse",
+        lng,
+        lat,
+        5,
+        "km",
+        "WITHDIST",
+        "ASC",
+        "COUNT",
+        1
       );
-
-        //  2️⃣ MongoDB: Fetch full warehouse data
-
-      const store = await Warehouse.findOne({
-        warehouseId: nearestWarehouseId,
-        status: "active",
-      });
-
-      if (store) {
-        return res.status(200).json({
-          success: true,
-          source: "redis",
-          distanceKm,
-          store,
-        });
-      }
+    } catch (error) {
+      redisFailed = true;
+      console.error("Redis georadius error:", error.message);
     }
 
-    /* =========================
-       3️⃣ FALLBACK: MongoDB GEO query
-       ========================= */
-    console.log("Falling back to MongoDB geo query...");
+    // 2️⃣ If Redis failed OR no data → MongoDB fallback
+    if (redisFailed || !redisResult || redisResult.length === 0) {
+      console.log("Falling back to MongoDB");
+
+      const store = await Warehouse.findOne({
+        status: "active",
+        location: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [lng, lat],
+            },
+            $maxDistance: 5000,
+          },
+        },
+      });
+
+      if (!store) {
+        return res.status(404).json({
+          success: false,
+          message: "No active stores found nearby",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        source: "mongodb",
+        store,
+      });
+    }
+
+    // 3️⃣ Redis hit → fetch full data from MongoDB
+    const [nearestWarehouseId, distanceKm] = redisResult[0];
 
     const store = await Warehouse.findOne({
+      warehouseId: nearestWarehouseId,
       status: "active",
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [lng, lat],
-          },
-          $maxDistance: 5000,
-        },
-      },
     });
 
     if (!store) {
@@ -89,15 +90,16 @@ async function nearestStore(req, res) {
 
     return res.status(200).json({
       success: true,
-      source: "mongodb",
+      source: "redis",
+      distanceKm,
       store,
     });
 
   } catch (error) {
     console.error("Nearest store error:", error);
     return res.status(500).json({
+      success: false,
       message: "Internal Server Error",
-      error: error.message,
     });
   }
 }

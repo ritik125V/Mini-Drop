@@ -10,6 +10,8 @@ import {
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Header from "@/component/layout/Header";
+import Loader from "@/component/ui/Loader";
+
 const CART_KEY = "user-cart";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
@@ -84,9 +86,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F7F2] flex items-center justify-center text-black">
-        Loading…
-      </div>
+     <Loader />
     );
   }
 

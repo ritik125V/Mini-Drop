@@ -1,25 +1,16 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import {
   ChevronRight,
   Package,
-  MapPin,
   HelpCircle,
   LogOut,
 } from "lucide-react";
 
-type Address = {
-  _id: string;
-  title: string;
-  addressLine1: string;
-  addressLine2?: string;
-  city: string;
-  state: string;
-  coordinates: [number, number];
-};
+import AddressAccordion, { Address } from "@/component/ui/AddressAccordion";
 
 type User = {
   username: string;
@@ -33,28 +24,23 @@ export default function AccountPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch profile using cookie
   useEffect(() => {
     async function fetchProfile() {
       try {
         const res = await axios.get(
-          process.env.NEXT_PUBLIC_API_ONE_BASE + "/customer/profile",
-          {
-            withCredentials: true,
-          }
+          `${process.env.NEXT_PUBLIC_API_ONE_BASE}/customer/profile`,
+          { withCredentials: true }
         );
         setUser(res.data.user);
-        console.log("user : ", res.data.user);
       } catch (err) {
-        // Not logged in → redirect
-        // router.replace("/auth/login");
+        console.error("Profile fetch failed");
       } finally {
         setLoading(false);
       }
     }
 
     fetchProfile();
-  }, [router]);
+  }, []);
 
   async function handleLogout() {
     await axios.post("/api/customer/logout");
@@ -100,12 +86,13 @@ export default function AccountPage() {
           label="My Orders"
           onClick={() => router.push("/shop/orders")}
         />
-
         <Action icon={<HelpCircle />} label="Help & Support" />
       </div>
+
+      {/* Addresses */}
       {user.address && user.address.length > 0 ? (
-        <div className="space-y-2">
-          {user.address.map((addr) => (
+        <div className="space-y-2 mt-4">
+          {user.address.map(addr => (
             <AddressAccordion key={addr._id} address={addr} />
           ))}
         </div>
@@ -117,7 +104,10 @@ export default function AccountPage() {
 
       {/* Logout */}
       <div className="px-4 mt-6">
-        <button className="w-full py-3 rounded-xl border border-neutral-200 text-sm font-semibold text-red-600 hover:bg-red-50 transition flex items-center justify-center gap-2">
+        <button
+          onClick={handleLogout}
+          className="w-full py-3 rounded-xl border border-neutral-200 text-sm font-semibold text-red-600 hover:bg-red-50 transition flex items-center justify-center gap-2"
+        >
           <LogOut className="w-4 h-4" />
           Log out
         </button>
@@ -146,42 +136,5 @@ function Action({
       </div>
       <ChevronRight className="w-5 h-5 text-neutral-400" />
     </button>
-  );
-}
-
-function AddressAccordion({ address }: { address: Address }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="px-2 mx-2 my-1 rounded-xl overflow-hidden bg-neutral-50">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-4 py-3"
-      >
-        <div className="flex items-center gap-3">
-          <MapPin className="w-5 h-5 text-neutral-700" />
-          <span className="font-medium">{address.title}</span>
-        </div>
-        <ChevronRight
-          className={`w-5 h-5 text-neutral-400 transition-transform ${
-            open ? "rotate-90" : ""
-          }`}
-        />
-      </button>
-
-      <div
-        className={`grid transition-all duration-300 ${
-          open ? "grid-rows-[1fr] p-4" : "grid-rows-[0fr] px-4"
-        }`}
-      >
-        <div className="overflow-hidden text-sm text-neutral-700 space-y-1">
-          <p>{address.addressLine1}</p>
-          {address.addressLine2 && <p>{address.addressLine2}</p>}
-          <p>
-            {address.city}, {address.state}
-          </p>
-        </div>
-      </div>
-    </div>
   );
 }
