@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
@@ -27,8 +27,8 @@ export default function ProductPage() {
       try {
         setLoading(true);
         const res = await axios.get(
-          process.env.NEXT_PUBLIC_API_ONE_BASE+"/customers/product-info" ||
-          "http://localhost:5000/api/v1/customers/product-info",
+          process.env.NEXT_PUBLIC_API_ONE_BASE+"/warehouse/product-info" ||
+          "http://localhost:5000/api/v1/warehouse/product-info",
           {
             params: { productId: id },
             signal: controller.signal,

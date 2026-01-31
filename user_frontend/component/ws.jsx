@@ -41,13 +41,22 @@ export default function OrderStatus({ orderId , defaultStatus }) {
       socket.emit("leave-order", orderId); // optional
     };
   }, [orderId]);
-
+  const STATUS_STYLES = {
+    pending: "bg-yellow-200 font-semibold ",
+    accepted: "bg-blue-200 font-semibold ",
+    packing: "bg-green-100 font-semibold ",
+    "out for delivery": "bg-green-200 font-semibold ",
+    cancelled: "bg-red-200 font-semibold ",
+    rejected: "bg-red-200 font-semibold ",
+    delivered: "bg-green-300 font-semibold ",
+  }
   return (
-    <div style={{ padding: "20px" }}>
-      <h3>Order ID: {orderId}</h3>
-      <p>
-        Status: <strong>{status}</strong>
+    <div className="py-2 px-1">
+      <div className="flex justify-center ">
+        <p className={STATUS_STYLES[status] + "bg-gray-100 text-black px-2 py-1 rounded-xl"}>
+        Your order is {status}
       </p>
+      </div>
     </div>
   );
 }

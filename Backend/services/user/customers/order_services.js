@@ -134,7 +134,7 @@ async function getOrders(req, res) {
     const orders = await Order.find({ "customer.userId": userId }).populate();
     return res.status(200).json({
       success: true,
-      orders,
+      orders: orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
     });
   } catch (error) {
     console.error("Error fetching orders:", error);

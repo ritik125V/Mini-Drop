@@ -143,7 +143,7 @@ async function getCurrentInventory(req , res) {
     const inventory = await Inventory.find({ warehouseId });
     return res.status(200).json({
       success: true,
-      inventory,
+      inventory: inventory.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
       inventoryCount: inventory.length
     });
   } catch (error) {

@@ -75,4 +75,24 @@ async function updateOrderStatus(req, res) {
   }
 }
 
-export {getWarehouseOrders , updateOrderStatus}
+
+async function getOrderInfo(req, res) {
+  try {
+    const orderId = req.query.orderId;
+
+    const order = await Order.findById(orderId).populate("customer");
+    return res.status(200).json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+}
+
+export {getWarehouseOrders , updateOrderStatus , getOrderInfo}

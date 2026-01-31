@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import Header from "@/component/header";
 import { io, Socket } from "socket.io-client";
 import { p } from "framer-motion/client";
+import { useRouter } from "next/navigation";
 
 /* ================= SOCKET INSTANCE ================= */
 const socket: Socket = io("http://localhost:5000", {
@@ -18,7 +19,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const router = useRouter();
   /* ========== READ WAREHOUSE ID ========== */
   useEffect(() => {
     const data = JSON.parse(
@@ -136,7 +137,10 @@ export default function OrdersPage() {
             return (
               <div
                 key={order._id}
-                className="rounded-xl bg-white p-5 shadow-sm hover:shadow-md transition"
+                onClick={(e)=>{
+                  router.push(`/current-order/${order._id}`)
+                }}
+                className="rounded-xl bg-white cursor-pointer p-5 shadow-sm hover:shadow-md transition"
               >
                 <div className="flex items-start justify-between">
                   <div>

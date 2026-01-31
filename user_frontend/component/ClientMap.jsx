@@ -5,7 +5,7 @@ import axios from "axios";
 import polyline from "@mapbox/polyline";
 import "leaflet/dist/leaflet.css";
 
-export default function ClientMap() {
+export default function ClientMap({clientCoordinates , warehouseCoordinates}) {
   const [L, setL] = useState(null);
   const [LeafletComponents, setLeafletComponents] = useState(null);
 
