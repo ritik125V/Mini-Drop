@@ -107,7 +107,7 @@ async function productCache() {
 
     console.log(`🚀 Cached ${products.length} products in Redis`);
   } catch (error) {
-    console.error("Redis product cache error:", error);
+    console.error("Redis product cache error:", error.message);
   }
 }
 
@@ -130,7 +130,7 @@ async function inventoryCache() {
       });
     }
   } catch(error) {
-    console.log("error in inventoryCache : ", error);
+    console.log("error in inventoryCache : ", error.message);
   }
 }
 

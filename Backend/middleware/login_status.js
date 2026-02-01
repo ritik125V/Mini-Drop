@@ -6,30 +6,26 @@ dotenv.config();
 async function loginStatus(req, res, next) {
   try {
     const token = req.cookies?.mdtoken;
-    console.log("token : " , res.cookies);
-    
+
     if (!token) {
-      console.log("no token present" ,token);
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - no token provided"
-      });
+      console.log("No token present — loginStatus: false");
+      req.login_status = false;
+      return next(); // ✅ MUST call next
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    // req.user.userId stores userId
-    
-    next();
+
+    req.user = decoded;        // decoded.userId etc.
+    req.login_status = true;
+
+    return next();             // ✅ continue
 
   } catch (error) {
-    console.error("Token verification error:", error);  
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized - invalid token"
-    });
+    console.error("Token verification error:", error.message);
+    req.login_status = false;
+    return next();             // ✅ still alx` low request
   }
 }
 
 
-export default loginStatus;
+export  {loginStatus};

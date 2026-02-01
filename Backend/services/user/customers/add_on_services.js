@@ -3,7 +3,7 @@ import {  FeaturedCategory } from "../../../models/add_on.js";
 
 async function FeaturedProducts(req, res) {
   console.log("req : FeaturedProducts");
-
+  const login_status = req.login_status || false;
   try {
     // 1. Get only featuredCategory values
     const featuredCategories = await FeaturedCategory
@@ -18,7 +18,9 @@ async function FeaturedProducts(req, res) {
 
     if (!categories.length) {
       return res.status(200).json({
-        success: true,
+        success: false,
+        message: "No featured categories found",
+        login_status
       });
     }
 
@@ -39,6 +41,7 @@ async function FeaturedProducts(req, res) {
       success: true,
       count: products.length,
       products
+      ,login_status
     });
 
   } catch (error) {
@@ -47,7 +50,7 @@ async function FeaturedProducts(req, res) {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
-      error: error.message
+      error: error.message,
     });
   }
 }

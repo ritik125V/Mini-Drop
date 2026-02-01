@@ -13,10 +13,16 @@ interface HeaderProps {
   address?: any;
   eta?: number | null;
   distance?: string | null;
+  isLogedIn?:boolean;
+  onChangeCurrentAddress?: ()=>void;
 }
 
-export default function Header({ address, eta, distance ,address_viewMode , iswarehouse_present }: HeaderProps) {
+export default function Header({ address, eta, distance ,address_viewMode , iswarehouse_present,isLogedIn, onChangeCurrentAddress }: HeaderProps) {
     const router = useRouter();
+
+    function HandleChangeAddress(){
+      onChangeCurrentAddress && onChangeCurrentAddress();
+    }
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-neutral-200">
       <div className="sm:px-4 px-1 py-3 flex items-center justify-between max-w-7xl mx-auto "> 
@@ -32,8 +38,10 @@ export default function Header({ address, eta, distance ,address_viewMode , iswa
         />
       </div>
            {
-            (address_viewMode && iswarehouse_present) &&<div>
-            <p className="text-[11px] text-neutral-500">Deliver to</p>
+            (address_viewMode && iswarehouse_present) ?<div>
+            <p className="text-[11px] flex justify-between text-neutral-500  ">Deliver to
+              <button onClick={HandleChangeAddress} className="text-xs text-blue-500 hover:underline">^</button>
+            </p>
              {
               address? 
               <div>
@@ -52,16 +60,25 @@ export default function Header({ address, eta, distance ,address_viewMode , iswa
               {eta + 10} min • {distance} km
             </p>
           )}
-           </div> 
+           </div> : <div>
+            <p>Fetching address...</p>
+           </div>
            }
         </div>
 
         {/* Account */}
-        <button
+        {
+          isLogedIn ? <button
         onClick={() => router.push("/shop/account")}
         className="shrink-0  rounded-full bg-neutral-100 px-4 py-1.5 text-sm font-medium hover:bg-neutral-200 transition">
           Account
+        </button> : <button
+        onClick={() => router.push("/auth/login")}
+        className="shrink-0  rounded-full bg-neutral-100 px-4 py-1.5 text-sm font-medium hover:bg-neutral-200 transition">
+          Login
         </button>
+        }
+        
       </div>
     </header>
   );

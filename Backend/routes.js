@@ -11,6 +11,7 @@ import {createCustomerProfile , loginCustomer ,getUserProfile } from "./services
 import {getWarehouseOrders ,updateOrderStatus , getOrderInfo} from './services/user/storeOperator/order_services.js'
 import {FeaturedProducts} from './services/user/customers/add_on_services.js'
 import tokenMiddleware from "./middleware/user_auth_middleware.js";
+import {loginStatus} from "./middleware/login_status.js";
 
 
 
@@ -18,13 +19,13 @@ const router = Router();
 
 // user routes
 router.post("/customers/nearest-store", nearestStore);
-router.get("/customers/product-info",tokenMiddleware, getProductInfo);
+router.get("/customers/product-info", getProductInfo);
 router.post("/customer/place-order" , tokenMiddleware ,placeOrder)
 router.post("/customer/create-profile", createCustomerProfile)
 router.get("/customer/search-query", userSearchQuery)
 router.get("/customer/get-orders" ,tokenMiddleware ,getOrders)
 router.get("/customer/track-order" , trackOrder)
-router.get("/customer/featured-products" , FeaturedProducts)
+router.get("/customer/featured-products" ,loginStatus, FeaturedProducts)
 router.post("/customer/login" , loginCustomer)
 router.get("/customer/profile" , tokenMiddleware , getUserProfile)
 
