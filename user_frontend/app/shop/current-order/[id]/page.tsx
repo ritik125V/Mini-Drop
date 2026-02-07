@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import OrderStatus from "@/component/ws";
+import ClientMap from "../../../../component/ClientMap";
+import Loader from "@/component/ui/Loader";
 
 export default function CurrentOrderPage() {
   const params = useParams();
@@ -18,10 +20,9 @@ export default function CurrentOrderPage() {
 
     axios
       .get(
-        process.env.NEXT_PUBLIC_API_ONE_BASE +
-          "/customer/track-order" ||
+        process.env.NEXT_PUBLIC_API_ONE_BASE + "/customer/track-order" ||
           "http://localhost:5000/api/v1/customer/track-order",
-        { params: { orderId } }
+        { params: { orderId } },
       )
       .then((res) => {
         setOrder(res.data.order);
@@ -35,9 +36,7 @@ export default function CurrentOrderPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-neutral-500">
-        Loading your order…
-      </div>
+      <Loader />
     );
   }
 
@@ -53,13 +52,12 @@ export default function CurrentOrderPage() {
 
   const totalAmount = order.products.reduce(
     (sum: number, p: any) => sum + p.totalPrice,
-    0
+    0,
   );
 
   return (
     <div className="min-h-screen bg-gray-50 text-black">
       <div className="max-w-xl mx-auto pb-24">
-
         {/* Header */}
         <div className="bg-white px-4 py-4 border-b">
           <h1 className="text-lg font-semibold">
@@ -72,11 +70,19 @@ export default function CurrentOrderPage() {
 
         {/* Live Status */}
         <div className="bg-white mt-3 px-4 py-4">
-          <OrderStatus
-            orderId={orderId}
-            defaultStatus={order.status}
-          />
+          <OrderStatus orderId={orderId} defaultStatus={order.status} />
         </div>
+        <ClientMap
+          clientCoordinates={{
+            lat: order?.customer?.deliveryAddress?.coordinates?.[1],
+            lng: order?.customer?.deliveryAddress?.coordinates?.[0],
+          }}
+          warehouseCoordinates={{
+            lat: 28.408912,
+            lng: 77.151992,
+            
+          }}
+        />
 
         {/* Items */}
         <div className="bg-white mt-3 px-4 py-4">
@@ -89,16 +95,12 @@ export default function CurrentOrderPage() {
                 className="flex justify-between items-center"
               >
                 <div>
-                  <p className="font-medium text-sm">
-                    {product.name}
-                  </p>
+                  <p className="font-medium text-sm">{product.name}</p>
                   <p className="text-xs text-neutral-500">
                     ₹{product.unitPrice} × {product.quantity}
                   </p>
                 </div>
-                <p className="font-semibold text-sm">
-                  ₹{product.totalPrice}
-                </p>
+                <p className="font-semibold text-sm">₹{product.totalPrice}</p>
               </div>
             ))}
           </div>
@@ -124,18 +126,12 @@ export default function CurrentOrderPage() {
         <div className="bg-white mt-3 px-4 py-4 space-y-3">
           <div>
             <p className="text-xs text-neutral-500">Delivering to</p>
-            <p className="font-medium text-sm">
-              {order.customer.name}
-            </p>
-            <p className="text-sm text-neutral-600">
-              {order.customer.phone}
-            </p>
+            <p className="font-medium text-sm">{order.customer.name}</p>
+            <p className="text-sm text-neutral-600">{order.customer.phone}</p>
           </div>
 
           <div>
-            <p className="text-xs text-neutral-500">
-              Delivery address
-            </p>
+            <p className="text-xs text-neutral-500">Delivery address</p>
             <p className="text-sm">
               {address.addressLine1},
               {address.addressLine2 && ` ${address.addressLine2},`}
@@ -146,10 +142,8 @@ export default function CurrentOrderPage() {
 
         {/* Warehouse */}
         <div className="bg-white mt-3 px-4 py-4 text-sm text-neutral-600">
-          <span className="font-medium">Warehouse:</span>{" "}
-          {order.warehouseId}
+          <span className="font-medium">Warehouse:</span> {order.warehouseId}
         </div>
-
       </div>
     </div>
   );

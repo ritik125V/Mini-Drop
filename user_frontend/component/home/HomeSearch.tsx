@@ -3,9 +3,17 @@
 import React from "react";
 import SearchLauncher from "..//searchLauncher";
 
-export default function HomeSearch() {
+
+type HomeSearchProps = {
+  style?:{
+    backgroundColor?: string;
+    color?: string;
+    [key: string]: any;
+  }
+}
+export default function HomeSearch( props: HomeSearchProps ) {
   return (
-    <section className="px-4 py-4 max-w-7xl mx-auto">
+    <section className="px-4 py-4  mx-auto border">
       <SearchLauncher />
     </section>
   );

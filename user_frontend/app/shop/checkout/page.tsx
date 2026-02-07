@@ -3,14 +3,20 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AddressAccordion from "@/component/ui/AddressAccordion";
-import { button } from "framer-motion/client";
+import { useRouter } from "next/navigation";
 
 interface Address {
   _id: string;
+  title: string;
+  addressLine1: string;
+  city: string;
+  state: string;
   [key: string]: any;
 }
 
 const CART_KEY = "user-cart";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_ONE_BASE || "http://localhost:5000/api/v1";
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState<any[]>([]);
@@ -19,24 +25,24 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
-  const [address, setAddress] = useState<any>(null);
+  const [address, setAddress] = useState<Address[]>([]);
 
-   useEffect(() => {
+  const router = useRouter();
+
+  // Fetch profile
+  useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await axios.get(
-          process.env.NEXT_PUBLIC_API_ONE_BASE + "/customer/profile",
-          {
-            withCredentials: true,
-          }
-        );
+        setLoading(true);
+        const res = await axios.get(`${API_BASE}/customer/profile`, {
+          withCredentials: true,
+        });
         setUser(res.data.user);
-        console.log("user : ", res.data.user);
-        setAddress(res.data.user.address || null);
-        
+        setAddress(res.data.user.address || []);
       } catch (err) {
-        // Not logged in → redirect
+        console.error(err);
         // router.replace("/auth/login");
       } finally {
         setLoading(false);
@@ -45,6 +51,8 @@ export default function CheckoutPage() {
 
     fetchProfile();
   }, []);
+
+  // Load cart
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
     setCart(stored);
@@ -64,9 +72,8 @@ export default function CheckoutPage() {
   );
 
   const placeOrder = async () => {
-    if ( !warehouseId || !addressId) {
-      console.log("Validation failed" , { warehouseId, addressId });
-      setError("Please fill all required fields");
+    if (!warehouseId || !addressId) {
+      setError("Please select an address");
       return;
     }
 
@@ -74,19 +81,18 @@ export default function CheckoutPage() {
       setLoading(true);
       setError(null);
 
-      await axios.post(
-        process.env.NEXT_PUBLIC_API_ONE_BASE+"/customer/place-order" ||"http://localhost:5000/api/v1/customer/place-order",
+      const res = await axios.post(
+        `${API_BASE}/customer/place-order`,
         {
           warehouseId,
           addressId,
           products: productsPayload,
         },
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       setSuccess(true);
+      setOrderId(res.data.orderId); // 👈 use real order id
       localStorage.removeItem(CART_KEY);
     } catch (err) {
       console.error(err);
@@ -96,13 +102,24 @@ export default function CheckoutPage() {
     }
   };
 
+  // Redirect after success
+  useEffect(() => {
+    if (!success || !orderId) return;
+
+    const timer = setTimeout(() => {
+      router.push(`/shop/current-order/${orderId}`);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [success, orderId, router]);
+
   if (success) {
     return (
       <div className="min-h-screen bg-[#F7F7F2] flex items-center justify-center text-black">
         <div className="bg-white p-6 rounded-xl text-center">
           <h2 className="text-lg font-semibold">Order placed 🎉</h2>
           <p className="text-sm text-black/60 mt-2">
-            Your order will arrive soon.
+            Redirecting to your order...
           </p>
         </div>
       </div>
@@ -114,37 +131,23 @@ export default function CheckoutPage() {
       <div className="max-w-md mx-auto px-4 pt-4">
         <h1 className="text-lg font-semibold text-black">Checkout</h1>
 
-        {/* User Inputs */}
+        {/* Addresses */}
         <div className="mt-4 space-y-3">
-          {/* <input
-            value={userId}
-            onChange={e => setUserId(e.target.value)}
-            placeholder="User ID"
-            className="w-full px-4 py-2 rounded-lg border text-sm"
-          /> */}
-
-          <input
-            value={warehouseId}
-            onChange={e => setWarehouseId(e.target.value)}
-            placeholder="Warehouse ID"
-            className="w-full px-4 py-2 rounded-lg border text-sm"
-          />
-
-     {address && address.length > 0 ? (
-  address.map((addr: any) => (
-    <AddressAccordion
-      key={addr._id}
-      address={addr}
-      onSelectAddress={(id: string, nearestWarehouseId?: string) => {
-        setAddressId(id);
-        setWarehouseId(nearestWarehouseId || "");
-      }}
-    />
-  ))
-) : (
-  <p className="text-sm text-black/60">No saved addresses</p>
-)}
-
+          {address.length > 0 ? (
+            address.map(addr => (
+              <AddressAccordion
+                key={addr._id}
+                address={addr}
+                isSelected={addressId === addr._id}
+                onSelectAddress={(id: string, nearestWarehouseId?: string) => {
+                  setAddressId(id);
+                  setWarehouseId(nearestWarehouseId || "");
+                }}
+              />
+            ))
+          ) : (
+            <p className="text-sm text-black/60">No saved addresses</p>
+          )}
         </div>
 
         {/* Order Summary */}
@@ -162,9 +165,7 @@ export default function CheckoutPage() {
                 <span className="text-black/70">
                   {item.name} × {item.quantity}
                 </span>
-                <span className="font-medium">
-                  ₹{item.totalPrice}
-                </span>
+                <span className="font-medium">₹{item.totalPrice}</span>
               </div>
             ))}
           </div>
@@ -175,14 +176,10 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {error && (
-          <div className="mt-4 text-sm text-red-600">
-            {error}
-          </div>
-        )}
+        {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
       </div>
 
-      {/* Sticky Place Order Button */}
+      {/* Sticky Button */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3">
         <div className="max-w-md mx-auto">
           <button

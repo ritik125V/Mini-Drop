@@ -7,7 +7,7 @@ async function getAllProducts(req, res) {
     try {
         const products = await Product.aggregate([
         { $match: { isActive: true } }, // optional filter
-        { $sample: { size: 25 } }
+        // { $sample: { size: 25 } }
         ])
         return res.status(200).json({
             success: true,
@@ -29,6 +29,7 @@ async function getAllProducts(req, res) {
 async function updateFeaturedProduct_Status (req,res){
     try {
         const {productId  , featureCategory , isFeatured} = req.query;
+        console.log("req at updateFeaturedProduct_Status" , req.query);
         if (!productId) {
             return res.status(400).json({
               success: false,
@@ -39,6 +40,9 @@ async function updateFeaturedProduct_Status (req,res){
             {isFeatured: isFeatured,
                 $addToSet: { featuredCategory: featureCategory }},
              {new:true}  )
+
+        await product.save();
+        console.log("product updated : " , product);
         return res.status(200).json({
             success:true,
             message:"updated successfully"

@@ -37,7 +37,7 @@ export default function BannerImage({ urlList = [] }: BannerImageProps) {
   if (!images.length) return null;
 
   return (
-    <div className="w-full flex justify-center py-4">
+    <div className="w-full flex justify-center py-4 border">
       {/* HEIGHT IS LOCKED HERE */}
       <div className="relative w-[90%] sm:w-[50%] h-[220px] sm:h-[300px] overflow-hidden">
         <AnimatePresence initial={false} custom={direction}>

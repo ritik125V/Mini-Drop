@@ -27,6 +27,8 @@ async function placeOrder(req, res) {
       });
     }
 
+
+    // db req -1: get customer profile
     const customer = await UserProfile.findById(userId);
     if (!customer) {
       console.log("Customer not found");
@@ -48,6 +50,7 @@ async function placeOrder(req, res) {
     }
 
     // \ check inventory
+
     for (const product of products) {
       console.log("Product in order : ", product);
       const productStatus = await cacheStatus(
@@ -55,6 +58,7 @@ async function placeOrder(req, res) {
       );
       if (!productStatus) {
         console.log("Inventory cache miss, checking DB");
+        // (coditonal) db req -2: check inventory for each product
         const inventory = await Inventory.findOne({
           warehouseId,
           productId: product.productId,
@@ -87,7 +91,7 @@ async function placeOrder(req, res) {
         }
       }
     }
-
+    //  db req -3: create order
     const newOrder = await Order.create({
       warehouseId,
       products,

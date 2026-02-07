@@ -17,26 +17,22 @@ export type Address = {
 type AddressAccordionProps = {
   address: Address;
   onSelectAddress?: (id: string, nearestWarehouseId?: string) => void; // ✅ OPTIONAL
+  isSelected?: boolean;
 };
 
 export default function AddressAccordion({
   address,
   onSelectAddress,
+  isSelected,
 }: AddressAccordionProps) {
   const [open, setOpen] = useState(false);
   console.log(address);
 
   return (
-    <div className="px-2 mx-2 my-1 rounded-xl overflow-hidden bg-neutral-50">
-      {/* Select button ONLY when handler exists */}
-      {onSelectAddress && (
-        <button
-          onClick={() => onSelectAddress(address._id, address.nearestWarehouseId)}
-          className="text-xs text-blue-600 px-4 pt-2"
-        >
-          Select
-        </button>
-      )}
+    <div
+     onClick={() => onSelectAddress?.(address._id, address.nearestWarehouseId)}
+     className={`px-2 mx-2 my-1 rounded-xl overflow-hidden bg-neutral-50 ${isSelected ? "border border-blue-500" : ""}`}>
+      
 
       {/* Header */}
       <button

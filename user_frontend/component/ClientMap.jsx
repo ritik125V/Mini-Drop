@@ -1,180 +1,99 @@
-"use client";
-
-import { useState, useEffect, useMemo } from "react";
+import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet";
+import L from "leaflet";
 import axios from "axios";
-import polyline from "@mapbox/polyline";
+import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 
-export default function ClientMap({clientCoordinates , warehouseCoordinates}) {
-  const [L, setL] = useState(null);
-  const [LeafletComponents, setLeafletComponents] = useState(null);
+// Fix default marker icon issue in Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
 
-  const [location, setLocation] = useState(null);
-  const [address, setAddress] = useState(null);
-  const [nearestWarehouse, setNearestWarehouse] = useState(null);
+// Auto-fit map to markers
+function FitBounds({ points }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (points.length > 0) {
+      map.fitBounds(L.latLngBounds(points), { padding: [40, 40] });
+    }
+  }, [points, map]);
+
+  return null;
+}
+
+export default function ClientMap({ clientCoordinates, warehouseCoordinates }) {
   const [route, setRoute] = useState([]);
-  const [eta, setEta] = useState(null);
-  const [distance, setDistance] = useState(null);
+  console.log("ClientMap coords:", clientCoordinates, warehouseCoordinates);
 
-  /* ---------------- Load Leaflet + react-leaflet SAFELY ---------------- */
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (!clientCoordinates || !warehouseCoordinates) return;
 
-    Promise.all([
-      import("leaflet"),
-      import("react-leaflet"),
-    ]).then(([leaflet, reactLeaflet]) => {
-      // Fix default marker icons
-      delete leaflet.Icon.Default.prototype._getIconUrl;
+    const fetchRoute = async () => {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/\
+${warehouseCoordinates.lng},${warehouseCoordinates.lat};\
+${clientCoordinates.lng},${clientCoordinates.lat}?\
+overview=full&geometries=geojson`;
 
-      leaflet.Icon.Default.mergeOptions({
-        iconRetinaUrl:
-          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        iconUrl:
-          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        shadowUrl:
-          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-      });
+        const res = await axios.get(url);
 
-      setL(leaflet);
-      setLeafletComponents(reactLeaflet);
-    });
-  }, []);
+        const coords = res.data.routes[0].geometry.coordinates;
 
-  /* ---------------- Icons ---------------- */
-  const userIcon = useMemo(() => {
-    if (!L) return null;
-    return new L.Icon({
-      iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-      iconSize: [36, 36],
-      iconAnchor: [18, 36],
-    });
-  }, [L]);
+        // OSRM gives [lng, lat], Leaflet needs [lat, lng]
+        const latLngs = coords.map(([lng, lat]) => [lat, lng]);
 
-  const warehouseIcon = useMemo(() => {
-    if (!L) return null;
-    return new L.Icon({
-      iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-      iconSize: [42, 42],
-      iconAnchor: [21, 42],
-    });
-  }, [L]);
+        setRoute(latLngs);
+      } catch (err) {
+        console.error("Route fetch failed", err);
+      }
+    };
 
-  /* ---------------- Location ---------------- */
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      setLocation({
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-      });
-    });
-  }, []);
+    fetchRoute();
+  }, [clientCoordinates, warehouseCoordinates]);
 
-  /* ---------------- Reverse Geocode ---------------- */
-  useEffect(() => {
-    if (!location) return;
+  if (!clientCoordinates || !warehouseCoordinates) return null;
 
-    axios
-      .get("https://nominatim.openstreetmap.org/reverse", {
-        params: {
-          format: "jsonv2",
-          lat: location.lat,
-          lon: location.lng,
-        },
-      })
-      .then((res) => setAddress(res.data.address));
-  }, [location]);
-
-  /* ---------------- Nearest Warehouse ---------------- */
-  useEffect(() => {
-    if (!location) return;
-
-    axios
-      .post(
-        process.env.NEXT_PUBLIC_API_ONE_BASE +
-          "/customers/nearest-store",
-        { user_coordinates: location }
-      )
-      .then((res) => setNearestWarehouse(res.data.store));
-  }, [location]);
-
-  /* ---------------- Route ---------------- */
-  useEffect(() => {
-    if (!location || !nearestWarehouse) return;
-
-    fetch(
-      `https://router.project-osrm.org/route/v1/foot/${location.lng},${location.lat};${nearestWarehouse.location.coordinates[0]},${nearestWarehouse.location.coordinates[1]}?overview=full&geometries=polyline`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const routeData = data.routes?.[0];
-        if (!routeData) return;
-
-        const decoded = polyline.decode(routeData.geometry);
-        setRoute(decoded.map(([lat, lng]) => [lat, lng]));
-        setDistance((routeData.distance / 1000).toFixed(2));
-        setEta(Math.ceil(routeData.duration / 60));
-      });
-  }, [location, nearestWarehouse]);
-
-  /* ---------------- Render ---------------- */
-  if (!L || !LeafletComponents || !location) {
-    return <p className="text-white p-4">Loading map…</p>;
-  }
-
-  const {
-    MapContainer,
-    TileLayer,
-    Marker,
-    Popup,
-    Polyline,
-  } = LeafletComponents;
+  const points = [
+    [clientCoordinates.lat, clientCoordinates.lng],
+    [warehouseCoordinates.lat, warehouseCoordinates.lng],
+  ];
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white">
-      <header className="px-4 pt-5 pb-3">
-        {address && (
-          <p className="text-sm">
-            📍 {address.road}, {address.city}, {address.state}
-          </p>
+    <div className="w-full h-[400px] rounded-xl overflow-hidden">
+      <MapContainer
+        center={points[0]}
+        zoom={14}
+        className="w-full h-full"
+        scrollWheelZoom={false}
+      >
+        <TileLayer
+          attribution="© OpenStreetMap"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        <Marker position={[warehouseCoordinates.lat, warehouseCoordinates.lng]} />
+        <Marker position={[clientCoordinates.lat, clientCoordinates.lng]} />
+
+        {route.length > 0 && (
+          <Polyline
+            positions={route}
+            pathOptions={{
+              color: "#16a34a",
+              weight: 5,
+              opacity: 0.9,
+            }}
+          />
         )}
-        {eta && distance && (
-          <p className="text-xs">
-            ⏱ {eta} min • 📏 {distance} km
-          </p>
-        )}
-      </header>
 
-      <div className="mx-4 rounded-3xl overflow-hidden">
-        <MapContainer
-          center={[location.lat, location.lng]}
-          zoom={13}
-          className="h-[48vh] w-full"
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-          {route.length > 0 && (
-            <Polyline
-              positions={route}
-              pathOptions={{ color: "#00e676", weight: 4 }}
-            />
-          )}
-
-          <Marker position={[location.lat, location.lng]} icon={userIcon}>
-            <Popup>You are here</Popup>
-          </Marker>
-
-          {nearestWarehouse && (
-            <Marker
-              position={[
-                nearestWarehouse.location.coordinates[1],
-                nearestWarehouse.location.coordinates[0],
-              ]}
-              icon={warehouseIcon}
-            />
-          )}
-        </MapContainer>
-      </div>
+        <FitBounds points={points} />
+      </MapContainer>
     </div>
   );
 }

@@ -1,10 +1,13 @@
 import Product from "../../../models/product.js";
 import Inventory from "../../../models/inventory.js";
+import { loginCustomer } from "./profile_services.js";
 
 
 
 async function getProductInfo(req, res) {
+    const login_status = req.login_status || false; 
     
+    console.log("getProductInfo called, login_status:", req.login_status);
   try {
     const { productId } = req.query;   
     console.log("product id: " , productId);
@@ -16,6 +19,11 @@ async function getProductInfo(req, res) {
         });
     }
     const productInfo = await Product.findById(productId).lean();
+    console.log("productInfo:", productInfo.productId);
+    const inventoryInfo = await Inventory.findOne({ productId: productInfo.productId }).lean();
+    const finalProductInfo = {...productInfo, stock: inventoryInfo ? inventoryInfo.stock : 0};
+
+    console.log("inventoryInfo:", inventoryInfo);
     if (!productInfo) {
         console.log("no product found");
         return res.status(404).json({
@@ -25,8 +33,9 @@ async function getProductInfo(req, res) {
     } 
     else{   
         return res.status(200).json({
+        login_status: req.login_status ,
         success: true,
-        product: productInfo
+        product: finalProductInfo
     });
     }      
     
@@ -35,6 +44,7 @@ async function getProductInfo(req, res) {
     return res.status(500).json({
         success: false,
         message: "Internal Server Error"
+
     });
     }
 }

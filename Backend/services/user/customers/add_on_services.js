@@ -34,7 +34,7 @@ async function FeaturedProducts(req, res) {
       },
       { $sample: { size: 25 } }
     ]);
-    console.log("products found:", products.length);
+    console.log("products found:", products);
 
 
     return res.status(200).json({

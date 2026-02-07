@@ -9,6 +9,8 @@ import {
   HelpCircle,
   LogOut,
 } from "lucide-react";
+import Loader from "@/component/ui/Loader";
+import { errorHandler } from "@/functions/errorHandler.js";
 
 import AddressAccordion, { Address } from "@/component/ui/AddressAccordion";
 
@@ -33,7 +35,8 @@ export default function AccountPage() {
         );
         setUser(res.data.user);
       } catch (err) {
-        console.error("Profile fetch failed");
+        errorHandler(err);
+        console.error("Profile fetch failed" , err);
       } finally {
         setLoading(false);
       }
@@ -49,9 +52,7 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-sm text-neutral-500">Loading profile...</p>
-      </div>
+      <Loader />
     );
   }
 

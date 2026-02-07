@@ -1,6 +1,8 @@
 import Warehouse from "../../../models/warehouse.js";
 import redisServer from "../../../redis_server/redis_server.js";
 
+const redisDistance = 5
+const mongoDistance = 5000 // in meters (5 km)
 
 async function nearestStore(req, res) {
   console.log("Nearest store request received...");
@@ -30,7 +32,7 @@ async function nearestStore(req, res) {
         "warehouse",
         lng,
         lat,
-        5,
+        redisDistance,
         "km",
         "WITHDIST",
         "ASC",
@@ -54,7 +56,7 @@ async function nearestStore(req, res) {
               type: "Point",
               coordinates: [lng, lat],
             },
-            $maxDistance: 5000,
+            $maxDistance: mongoDistance, // 1 km in meters
           },
         },
       });

@@ -1,20 +1,23 @@
-import Router from "next/router";
+import { useRouter } from "next/router";
 
-function statusCodeHandler(error){
+function errorHandler(error){
+    
     try{
         const statusCode = error.response.status;
-       if(statusCode === 401){
-            Router.push('/auth/login');
-       }
-        if(statusCode === 404){
-            Router.push('/404');
-        }
-        if(statusCode === 500){
-            Router.push('/shop/home');
-        }
+      switch (statusCode) {
+        case 401:
+          window.location.href = "/auth/login";
+          break;
+        case 403:
+            window.location.href = "/auth/login";
+        default:
+          console.log("Unhandled status code:", statusCode);
+      }
 
     }
     catch(error){
         console.log(error)
     }
 }
+
+export  {errorHandler};

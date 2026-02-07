@@ -19,7 +19,7 @@ const router = Router();
 
 // user routes
 router.post("/customers/nearest-store", nearestStore);
-router.get("/customers/product-info", getProductInfo);
+router.get("/customers/product-info", loginStatus, getProductInfo);
 router.post("/customer/place-order" , tokenMiddleware ,placeOrder)
 router.post("/customer/create-profile", createCustomerProfile)
 router.get("/customer/search-query", userSearchQuery)
