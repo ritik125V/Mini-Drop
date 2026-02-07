@@ -13,7 +13,7 @@ type HomeSearchProps = {
 }
 export default function HomeSearch( props: HomeSearchProps ) {
   return (
-    <section className="px-4 py-4  mx-auto border">
+    <section className="px-4 py-4  mx-auto ">
       <SearchLauncher />
     </section>
   );

@@ -13,6 +13,7 @@ import CartButton from "../../../component/ui/CartButton";
 import AddressPopupWindow from "@/component/home/AddressPopupWindow";
 import AddressNotServicable from "@/component/home/AddressNotServicable";
 import Loader from "@/component/ui/Loader";
+import Footer from "@/component/layout/Footer";
 
 // import { getSocket } from "../../lib/socket/socket_client.js"; // uncomment if socket usage is needed
 
@@ -276,15 +277,15 @@ export default function HomePage() {
         <BannerImage />
         <CartButton />
 
-        <main className="pb-24 w-full border">
+        <main className="pb-24 w-full ">
           {/* popular section */}
-          <div className={`${popularSectionTheme} border border-black`}>
+          <div className={`${popularSectionTheme} `}>
             <h2 className="text-xl font-bold mb-4">Popular near you</h2>
 
             {productsLoading ? (
               <ProductSkeleton />
             ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-2 border">
+              <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-2 ">
                 {products.map((p) => (
                   <ProductCard
                     key={p._id ?? p.productId}
@@ -295,11 +296,13 @@ export default function HomePage() {
             )}
           </div>
         </main>
+        <Footer />
       </>
     ) : (
       <AddressNotServicable />
     )}
   </div>
+  
 );
 
 }
