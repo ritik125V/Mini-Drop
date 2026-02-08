@@ -27,6 +27,7 @@ export default function Header({
   onChangeCurrentAddress,
 }: HeaderProps) {
   const router = useRouter();
+ 
 
   function HandleChangeAddress() {
     onChangeCurrentAddress && onChangeCurrentAddress();
@@ -64,7 +65,9 @@ export default function Header({
                   {address?.road && `${address.road}, `}
                   {address?.suburb && `${address.suburb}, `}
                   {address?.city}
+                  <span> {address?.title} , {address?.addressLine1} , {address?.addressLine2}</span>
                 </p>
+                
               ) : (
                 <p className="text-xs font-medium text-neutral-400">
                   Locating your address…
