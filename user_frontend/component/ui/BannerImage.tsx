@@ -9,6 +9,7 @@ import defaultImageTwo from "../../resources/logos/default_banner_image-2.png";
 
 type BannerImageProps = {
   urlList?: (string | StaticImageData)[];
+  BannerStyra?: string;
 };
 
 const DEFAULT_IMAGES: StaticImageData[] = [
@@ -18,15 +19,22 @@ const DEFAULT_IMAGES: StaticImageData[] = [
 
 const AUTO_DELAY = 3500;
 
-export default function BannerImage({ urlList = [] }: BannerImageProps) {
+export default function BannerImage({
+  urlList = [],
+  BannerStyra,
+}: BannerImageProps) {
+
   const images = [...DEFAULT_IMAGES, ...urlList];
+
   const [[index, direction], setIndex] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {
-    const timer = setInterval(() => paginate(1), AUTO_DELAY);
+    const timer = setInterval(() => {
+      paginate(1);
+    }, AUTO_DELAY);
+
     return () => clearInterval(timer);
   }, [index]);
-
   function paginate(dir: number) {
     setIndex(([prev]) => [
       (prev + dir + images.length) % images.length,
@@ -35,10 +43,13 @@ export default function BannerImage({ urlList = [] }: BannerImageProps) {
   }
 
   if (!images.length) return null;
-
+  useEffect(() => {
+    setContainerClass(default_containerClass+BannerStyra)  }, [BannerStyra]);
+  const default_containerClass = " transition-all duration-100 w-full flex justify-center py-4 "
+  const [containerClass , setContainerClass] =  useState(default_containerClass)
+  console.log(containerClass)
   return (
-    <div className="w-full flex justify-center py-4 ">
-      {/* HEIGHT IS LOCKED HERE */}
+    <div className={containerClass  } >
       <div className="relative w-[90%] sm:w-[50%] h-[220px] sm:h-[300px] overflow-hidden">
         <AnimatePresence initial={false} custom={direction}>
           <motion.div

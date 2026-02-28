@@ -37,7 +37,31 @@ export default function HomePage() {
   /* ---------------- PRODUCTS ---------------- */
   const [products, setProducts] = useState<any[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [variables, setVariables] = useState<any>();
 
+
+async function fetchStyra() {
+  try {
+    const response = await axios.get(
+      process.env.NEXT_PUBLIC_STYRA_LOCALURL + "/web-config",
+      {
+        params: { query: "variables" },
+        headers: { "x-api-key": process.env.NEXT_PUBLIC_STYRA_LOCALKEY },
+      }
+    );
+    console.log("styra response : " , response.data)
+    setVariables(response.data.variables);
+  } catch (error) {
+    console.log("Error fetching STYRA data:", error);
+  }
+}
+useEffect(() => {
+  console.log("variables from effect:", variables);
+}, [variables]);
+
+useEffect(() => {
+  fetchStyra();
+}, []);
   /* ======================================================
      INITIAL LOAD → CHECK LOGIN
   ====================================================== */
@@ -242,10 +266,10 @@ export default function HomePage() {
     axios
       .get(
         process.env.NEXT_PUBLIC_API_ONE_BASE +
-          "/customer/featured-products",
+          "/admin/products",
         { withCredentials: true },
       )
-      .then((res) => setProducts(res.data.products))
+      .then((res) =>{console.log(res.data.products.length) , setProducts(res.data.products)})
       .finally(() => setProductsLoading(false));
   }, [location, isAddressServable]);
 
@@ -257,50 +281,59 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white text-black">
-      <Header
-        address={userAddress}
-        iswarehouse_present={!!nearestWarehouse}
-        eta={eta}
-        distance={distance}
-        address_viewMode
-        isLogedIn={!!loginStatus}
-        onChangeCurrentAddress={() => setIsAddressPopupVisible(true)}
-      />
+  <Header
+    address={userAddress}
+    iswarehouse_present={!!nearestWarehouse}
+    eta={eta}
+    distance={distance}
+    address_viewMode
+    isLogedIn={!!loginStatus}
+    onChangeCurrentAddress={() => setIsAddressPopupVisible(true)}
+  />
 
-      {isAddressPopupVisible && (
-        <AddressPopupWindow
-          userAddress={loginStatus ? addressList : []}
-          onSelect={handleAddressSelect}
-          onClose={() => {}}
-          onCurrentLocationSelect={getCurrentLocation}
-        />
-      )}
+  {isAddressPopupVisible && (
+    <AddressPopupWindow
+      userAddress={loginStatus ? addressList : []}
+      onSelect={handleAddressSelect}
+      onClose={() => {setIsAddressPopupVisible(false)}}
+      onCurrentLocationSelect={getCurrentLocation}
+    />
+  )}
 
-      {isAddressServable ? (
-        <>
-          <HomeSearch />
-          <BannerImage />
-          <CartButton />
+  {isAddressServable ? (
+    <>
+      <HomeSearch homesearch_styra={variables?.homesearchStyra} />
 
-          <main className="pb-24 px-4">
-            <h2 className="mb-4 text-xl font-bold">Popular near you</h2>
+      {/* ✅ Fixed Banner */}
+      <BannerImage BannerStyra={variables?.bannerStyra} />
 
-            {productsLoading ? (
-              <ProductSkeleton />
-            ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-2">
-                {products.map((p) => (
-                  <ProductCard key={p._id} product={p} />
-                ))}
-              </div>
-            )}
-          </main>
+      <CartButton />
 
-          <Footer />
-        </>
-      ) : (
-        location && <AddressNotServicable />
-      )}
-    </div>
+      <main className="pb-24 px-4">
+        <h2 className="mb-4 text-xl font-bold">
+          {variables?.popularHeading ?? "Popular Products"}
+        </h2>
+
+        {productsLoading ? (
+          <ProductSkeleton />
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-2">
+            {products.map((p) => (
+              <ProductCard key={p._id} product={p} />
+            ))}
+          </div>
+        )}
+      </main>
+
+      <Footer />
+    </>
+  ) : (
+    location && <AddressNotServicable />
+  )}
+</div>
   );
 }
+function item(value: never, index: number, array: never[]): unknown {
+  throw new Error("Function not implemented.");
+}
+

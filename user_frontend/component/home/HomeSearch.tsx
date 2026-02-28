@@ -1,19 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import SearchLauncher from "..//searchLauncher";
+import { useState } from "react";
 
 
 type HomeSearchProps = {
-  style?:{
-    backgroundColor?: string;
-    color?: string;
-    [key: string]: any;
-  }
-}
-export default function HomeSearch( props: HomeSearchProps ) {
+  homesearch_styra?: string;
+};
+
+export default function HomeSearch({
+  homesearch_styra = "",
+}: HomeSearchProps) {
+
+  const defaultClass =
+    "transition-all duration-300 px-4 py-4 mx-auto ";
+
   return (
-    <section className="px-4 py-4  mx-auto ">
+    <section className={`${defaultClass} ${homesearch_styra}`}>
       <SearchLauncher />
     </section>
   );

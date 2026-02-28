@@ -6,7 +6,8 @@ import logo from "../../../resources/logos/MD-logo_transparent_bg.png";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { LoaderCircle } from 'lucide-react';
-
+import Loader from "@/component/ui/Loader";
+import { style } from "framer-motion/client";
 
 
 
@@ -14,7 +15,7 @@ import { LoaderCircle } from 'lucide-react';
 function Page() {
   const [phone , setphone] = React.useState("");
   const [password , setpassword] = React.useState("");
-  const[loading , setloading] = React.useState(false);
+  const[loading , setloading] = React.useState(true);
   const[error , seterror] = React.useState("");
 
   const router = useRouter();
@@ -42,6 +43,7 @@ function Page() {
     } catch (error) {
       alert("Something went wrong");
       console.log("error : ",error);
+      setloading(false);
     }
   }
 
@@ -110,7 +112,7 @@ function Page() {
           >
             {
               loading?
-               <LoaderCircle/>:
+             <Loader component="btn" />:
                "Login"
             }
           </button>

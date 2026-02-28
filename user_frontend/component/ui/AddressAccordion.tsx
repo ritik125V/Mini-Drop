@@ -18,12 +18,14 @@ type AddressAccordionProps = {
   address: Address;
   onSelectAddress?: (id: string, nearestWarehouseId?: string) => void; // ✅ OPTIONAL
   isSelected?: boolean;
+  onclose?:boolean
 };
 
 export default function AddressAccordion({
   address,
   onSelectAddress,
   isSelected,
+  
 }: AddressAccordionProps) {
   const [open, setOpen] = useState(false);
   console.log(address);
@@ -37,6 +39,7 @@ export default function AddressAccordion({
       {/* Header */}
       <button
         onClick={() => setOpen(!open)}
+        
         className="w-full flex items-center justify-between px-4 py-3"
       >
         <div className="flex items-center gap-3">
