@@ -1,5 +1,5 @@
 "use client";
-
+import {Styra} from "styra-sdk"
 import React, { use, useEffect, useState } from "react";
 import axios from "axios";
 import Header from "../../../component/layout/Header";
@@ -40,17 +40,18 @@ export default function HomePage() {
   const [variables, setVariables] = useState<any>();
 
 
+
+const styra = new Styra({
+  apiKey: process.env.NEXT_PUBLIC_STYRA_LOCALKEY!,
+  cacheTTL:10000
+});
+
 async function fetchStyra() {
   try {
-    const response = await axios.get(
-      process.env.NEXT_PUBLIC_STYRA_LOCALURL + "/web-config",
-      {
-        params: { query: "variables" },
-        headers: { "x-api-key": process.env.NEXT_PUBLIC_STYRA_LOCALKEY },
-      }
-    );
-    console.log("styra response : " , response.data)
-    setVariables(response.data.variables);
+    const data = await styra.getVariables();
+    console.log("styra response:", data);
+    setVariables(data.variables);
+
   } catch (error) {
     console.log("Error fetching STYRA data:", error);
   }
